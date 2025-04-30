@@ -11,7 +11,7 @@ services:
     depends_on:
       - django_app
     networks:
-      - notes-app-nw
+      - notes-app
 
   django_app:
     build:
@@ -20,7 +20,7 @@ services:
     container_name: "django_cont"
     ports:
       - "8000:8000"
-    command: sh -c "python manage.py migrate --noinput && gunicorn notesapp.wsgi --bind 0.0.0.0:8000"
+    command: sh -c "python manage.py migrate --no-input && gunicorn notesapp.wsgi --bind 0.0.0.0:8000"
     env_file:
       - ".env"
     depends_on:
@@ -33,7 +33,7 @@ services:
       retries: 5
       start_period: 30s
     networks:
-      - notes-app-nw
+      - notes-app
 
   db:
     image: mysql
@@ -42,7 +42,7 @@ services:
       - MYSQL_ROOT_PASSWORD=root
       - MYSQL_DATABASE=test_db
     volumes:
-      - ./data/mysql/db:/var/lib/mysql
+      - mysql-data:/var/lib/mysql
     healthcheck:
       test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-uroot", "-proot"]
       interval: 10s
@@ -50,7 +50,10 @@ services:
       retries: 5
       start_period: 60s
     networks:
-      - notes-app-nw
+      - notes-app
+
+volumes:
+  mysql-data:
 
 networks:
-  notes-app-nw:
+  notes-app:
